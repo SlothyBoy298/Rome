@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Roman Emperors Tier List</title>
+<style>
+  :root{
+    --ink:#1f2733; --muted:#5b6675; --line:#d9dee6; --bg:#f3f1ea; --card:#ffffff;
+    --sel:#1763d6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); padding:18px 16px 40px;
+  }
+  .wrap{max-width:1000px;margin:0 auto;}
+  h1{font-size:26px;margin:0 0 2px;letter-spacing:.2px;}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 14px;line-height:1.45;}
+  .topbar{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;margin:0 0 16px;}
+  .namefield{display:flex;align-items:center;gap:8px;font-size:15px;}
+  .namefield input{
+    font-size:15px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;min-width:200px;background:#fff;
+  }
+  .counter{font-size:15px;font-weight:600;}
+  .counter .done{color:#1a7f37;}
+  .btn{
+    font-size:13px;padding:7px 12px;border:1px solid var(--line);background:#fff;border-radius:8px;
+    cursor:pointer;color:var(--ink);
+  }
+  .btn:hover{background:#eef1f5;}
+
+  /* Tier rows */
+  .board{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+  .tier{display:flex;align-items:stretch;border-bottom:1px solid var(--line);min-height:70px;}
+  .tier:last-child{border-bottom:none;}
+  .tier .label{
+    width:74px;flex:0 0 74px;display:flex;align-items:center;justify-content:center;
+    font-size:30px;font-weight:800;color:#2b2b2b;text-shadow:0 1px 0 rgba(255,255,255,.45);
+  }
+  .tier .zone{
+    flex:1;display:flex;flex-wrap:wrap;gap:6px;padding:4px 10px;align-content:flex-start;
+    cursor:pointer;position:relative;
+  }
+  .tier .zone:empty::after,
+  .tier .zone.hint::after{
+    content:"click here to place the highlighted emperor";
+    color:#9aa3b0;font-size:12.5px;font-style:italic;align-self:center;
+  }
+  .tS\+ .label{background: linear-gradient(to right, red, orange, yellow, green, blue, violet, red); background-size: 200% 100%; animation: rainbow-move 5s linear infinite;} @keyframes rainbow-move {0% { background-position: 0% 50%; }100% { background-position: 200% 50%; }}
+  .tS .label{background:#e0544e;}
+  .tA .label{background:#f0883e;} .tB .label{background:#f3c046;}
+  .tC .label{background:#8fc46b;} .tD .label{background:#5fa6e6;}
+  .tE .label{background:#9b86d6;} .tF .label{background:#b9bec7;}
+
+
+  /* Tray */
+  .trayhead{margin:20px 0 8px;font-size:14px;color:var(--muted);}
+  .tray{
+    border:2px dashed #c7cdd6;border-radius:12px;background:#fbfaf6;min-height:90px;
+    display:flex;flex-wrap:wrap;gap:6px;padding:10px;cursor:pointer;align-content:flex-start;
+  }
+  .tray:empty::after{content:"All emperors placed \2014 nice work!";color:#9aa3b0;font-style:italic;align-self:center;}
+
+  /* Tiles */
+  .tile{
+    width:78px;flex:0 0 78px;background:var(--card);border:1px solid var(--line);border-radius:9px;
+    overflow:hidden;cursor:pointer;user-select:none;text-align:center;position:relative;
+    box-shadow:0 1px 2px rgba(0,0,0,.06);transition:transform .05s ease;
+  }
+  .tile:hover{transform:translateY(-1px);}
+  .tile .pic{width:100%;height:62px;background:#e9e4d8;display:block;object-fit:cover;object-position:center top;}
+  .tile .nm{display:block;font-size:11px;line-height:1.15;padding:2px 3px 3px;font-weight:600;}
+  .tile .seq{
+    position:absolute;top:2px;right:4px;font-size:12px;font-weight:800;color:#fff;
+    text-shadow:1px 1px 0 #000,-1px 1px 0 #000,1px -1px 0 #000,-1px -1px 0 #000,0 0 2px #000;
+    pointer-events:none;
+  }
+  .tile.sel{outline:3px solid var(--sel);outline-offset:0;border-color:var(--sel);}
+  /* name-card fallback when no photo */
+  .tile.noimg .pic{display:none;}
+  .tile.noimg{display:flex;flex-direction:column;justify-content:center;height:80px;}
+  .tile.noimg .nm{font-size:12px;padding-top:0;}
+
+  /* Done banner */
+  .done-banner{
+    margin:18px 0 0;border:1px solid #bfe3c6;background:#eaf7ee;border-radius:12px;
+    padding:14px 16px;display:none;gap:14px;align-items:center;
+  }
+  .done-banner.show{display:flex;}
+  .done-banner svg{flex:0 0 auto;}
+  .done-banner .txt{font-size:14.5px;line-height:1.5;}
+  .done-banner b{color:#1a7f37;}
+  kbd{
+    background:#fff;border:1px solid #b9c0ca;border-bottom-width:2px;border-radius:5px;
+    padding:1px 6px;font-family:inherit;font-size:13px;font-weight:600;
+  }
+  .savehint{display:none;font-size:13px;color:var(--muted);}
+  .restored-banner{
+    display:none;align-items:center;gap:12px;margin:0 0 14px;
+    border:1px solid #cfe0f5;background:#eef4fc;border-radius:10px;padding:10px 14px;font-size:14px;
+  }
+  .restored-banner span{flex:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Roman Emperors Tier List</h1>
+  <p class="sub">
+    Rank the emperors from Augustus to Severus Alexander. <b>S+</b> is the best, <b>F</b> is the worst.<br>
+    <b>How to play:</b> click an emperor in the tray to highlight it, then click a tier row (<b>S+</b>&ndash;<b>F</b>) to drop it there.
+    Click an emperor you&rsquo;ve already placed to pick it up and move it. Click the tray to send one back.
+  </p>
+
+  <div class="topbar">
+    <div class="counter"><span id="placed">0</span> of <span id="total">0</span> placed</div>
+    <button class="btn" id="reset">Start over</button>
+    <span id="savehint" class="savehint">Saves automatically on this computer</span>
+  </div>
+
+  <div class="restored-banner" id="restored">
+    <span><b>Welcome back!</b> Your tier list was restored from where you left off.</span>
+    <button class="btn" id="startover">Start over</button>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="trayhead">Emperors to sort (click one to highlight it):</div>
+  <div class="tray" id="tray" data-loc="tray"></div>
+
+  <div class="done-banner" id="done">
+    <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+      <rect x="4" y="14" width="38" height="25" rx="4" fill="#fff" stroke="#1a7f37" stroke-width="2.5"/>
+      <path d="M16 14 l3-4 h8 l3 4" fill="none" stroke="#1a7f37" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="23" cy="26" r="7.5" fill="#cdeccf" stroke="#1a7f37" stroke-width="2.2"/>
+      <circle cx="36" cy="19" r="1.7" fill="#1a7f37"/>
+    </svg>
+    <div class="txt">
+      <b>All set!</b> Save your tier list to turn it in: press the <b>Screenshot</b> key
+      (the camera button) on your keyboard, then add the picture to your classwork document.
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- Roster: Augustus through Severus Alexander ----
+  // To swap a portrait, change "title" to any English Wikipedia page title.
+  var EMPERORS = [
+    {name:"Mr. Davis",        reign:"1\u20131",         title:"davis.jpeg"},
+    {name:"Augustus",         reign:"27 BC\u2013AD 14", title:"augustus.jpg"},
+    {name:"Tiberius",         reign:"14\u201337",       title:"tiberius.jpg"},
+    {name:"Caligula",         reign:"37\u201341",       title:"caligula.jpg"},
+    {name:"Claudius",         reign:"41\u201354",       title:"claudius.jpg"},
+    {name:"Nero",             reign:"54\u201368",       title:"nero.jpg"},
+    {name:"Galba",            reign:"68\u201369",       title:"galba.jpg"},
+    {name:"Otho",             reign:"69",               title:"otho.jpg"},
+    {name:"Vitellius",        reign:"69",               title:"vitellius.jpg"},
+    {name:"Vespasian",        reign:"69\u201379",       title:"vespasian.jpg"},
+    {name:"Titus",            reign:"79\u201381",       title:"titus.jpg"},
+    {name:"Domitian",         reign:"81\u201396",       title:"domitian.JPG"},
+    {name:"Nerva",            reign:"96\u201398",       title:"nerva.jpg"},
+    {name:"Trajan",           reign:"98\u2013117",      title:"trajan.jpg"},
+    {name:"Hadrian",          reign:"117\u2013138",     title:"hadrian.jpg"},
+    {name:"Antoninus Pius",   reign:"138\u2013161",     title:"antoninus_pius.jpg"},
+    {name:"Marcus Aurelius",  reign:"161\u2013180",     title:"marcus_aurelius.jpg"},
+    {name:"Commodus",         reign:"180\u2013192",     title:"commodus.jpg"},
+    {name:"Pertinax",         reign:"193",              title:"pertinax.jpg"},
+    {name:"Didius Julianus",  reign:"193",              title:"didius_julianus.jpg"},
+    {name:"Septimius Severus",reign:"193\u2013211",     title:"septimus_serverus"},
+    {name:"Caracalla",        reign:"198\u2013217",     title:"caraculla.JPG"},
+    {name:"Macrinus",         reign:"217\u2013218",     title:"macrinus.jpg"},
+    {name:"Elagabalus",       reign:"218\u2013222",     title:"elagabalus.jpg"},
+    {name:"Severus Alexander",reign:"222\u2013235",     title:"alexander_serverus.jpg"}
+  ];
+  var TIERS = ["S+","S","A","B","C","D","E","F"];
+
+  var board = document.getElementById("board");
+  var tray  = document.getElementById("tray");
+  var placedEl = document.getElementById("placed");
+  var totalEl = document.getElementById("total");
+  var doneEl = document.getElementById("done");
+  var zones = {}; // loc -> element
+  var tiles = []; // {el, loc}
+  var selected = null; // index into tiles
+
+  totalEl.textContent = EMPERORS.length;
+
+  // Build tier rows
+  TIERS.forEach(function(t){
+    var row = document.createElement("div");
+    row.className = "tier t"+t;
+    var lab = document.createElement("div");
+    lab.className = "label"; lab.textContent = t;
+    var zone = document.createElement("div");
+    zone.className = "zone"; zone.dataset.loc = t;
+    row.appendChild(lab); row.appendChild(zone);
+    board.appendChild(row);
+    zones[t] = zone;
+  });
+  zones["tray"] = tray;
+
+  // Build a tile per emperor (created once, then moved between zones)
+  EMPERORS.forEach(function(emp, i){
+    var el = document.createElement("div");
+    el.className = "tile";
+    el.title = emp.name;
+
+    var img = document.createElement("img");
+    img.className = "pic"; img.alt = emp.name;
+    var nm = document.createElement("span");
+    nm.className = "nm"; nm.textContent = emp.name;
+    var sq = document.createElement("span");
+    sq.className = "seq"; sq.textContent = (i + 1);
+    el.appendChild(img); el.appendChild(nm); el.appendChild(sq);
+
+    el.addEventListener("click", function(ev){
+      ev.stopPropagation();         // don't trigger the zone's place handler
+      selectTile(i);
+    });
+
+    tiles.push({el:el, loc:"tray"});
+    tray.appendChild(el);
+
+    loadPortrait(emp, img, el);
+  });
+
+  // Clicking a zone places the highlighted tile there
+  Object.keys(zones).forEach(function(loc){
+    zones[loc].addEventListener("click", function(){
+      if(selected === null) return;
+      placeTile(selected, loc);
+      clearSelection();
+      update();
+    });
+  });
+
+  function doReset(){
+    clearSelection();
+    tiles.forEach(function(t, i){ placeTile(i, "tray"); });
+    clearState();
+    var rb = document.getElementById("restored");
+    if(rb) rb.style.display = "none";
+    update();
+  }
+  document.getElementById("reset").addEventListener("click", doReset);
+  var soBtn = document.getElementById("startover");
+  if(soBtn) soBtn.addEventListener("click", doReset);
+
+  function selectTile(i){
+    if(selected === i){ clearSelection(); return; }
+    clearSelection();
+    selected = i;
+    tiles[i].el.classList.add("sel");
+    // hint the empty zones
+    Object.keys(zones).forEach(function(loc){
+      if(loc !== "tray") zones[loc].classList.add("hint");
+    });
+  }
+  function clearSelection(){
+    if(selected !== null) tiles[selected].el.classList.remove("sel");
+    selected = null;
+    Object.keys(zones).forEach(function(loc){ zones[loc].classList.remove("hint"); });
+  }
+  function placeTile(i, loc){
+    tiles[i].loc = loc;
+    zones[loc].appendChild(tiles[i].el);
+  }
+
+  // ---- Auto-save, so an accidental tab or lid close doesn't lose work ----
+  var STORAGE_KEY = "romanEmperorsTierList.v1";
+  var storageOK = false;
+  try { localStorage.setItem("__probe__", "1"); localStorage.removeItem("__probe__"); storageOK = true; }
+  catch(e){ storageOK = false; }
+
+  function saveState(){
+    if(!storageOK) return;
+    try {
+      var m = {};
+      tiles.forEach(function(t, i){ m[EMPERORS[i].name] = t.loc; });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(m));
+    } catch(e){ storageOK = false; }
+  }
+  function clearState(){ try { localStorage.removeItem(STORAGE_KEY); } catch(e){} }
+  function restoreState(){
+    if(!storageOK) return false;
+    var saved;
+    try { saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); } catch(e){ return false; }
+    if(!saved) return false;
+    var any = false;
+    tiles.forEach(function(t, i){
+      var loc = saved[EMPERORS[i].name];
+      if(loc && (loc === "tray" || zones[loc])){ placeTile(i, loc); if(loc !== "tray") any = true; }
+    });
+    return any;
+  }
+
+  function update(){
+    var placed = 0;
+    tiles.forEach(function(t){ if(t.loc !== "tray") placed++; });
+    placedEl.textContent = placed;
+    var allDone = (placed === tiles.length);
+    placedEl.parentNode.classList.toggle("done", allDone);
+    doneEl.classList.toggle("show", allDone);
+    saveState();
+  }
+
+  // Fetch the emperor's headliner portrait from Wikipedia at runtime.
+  // If anything fails, fall back to a clean labeled name-card.
+  function loadPortrait(emp, img, tileEl){
+    var url = "images/" + encodeURIComponent(emp.title);
+    fetch(url).then(function(r){
+      if(!r.ok) throw new Error("bad status");
+      return r.json();
+    }).then(function(j){
+      var src = (j.thumbnail && j.thumbnail.source) ||
+                (j.originalimage && j.originalimage.source);
+      if(!src) throw new Error("no image");
+      img.onerror = function(){ tileEl.classList.add("noimg"); };
+      img.src = src;
+    }).catch(function(){
+      tileEl.classList.add("noimg");
+    });
+  }
+
+
+  // Restore a board left behind by an accidental close, and keep saving on the way out
+  if(restoreState()){
+    var rb = document.getElementById("restored");
+    if(rb) rb.style.display = "flex";
+  }
+  if(storageOK){
+    var hint = document.getElementById("savehint");
+    if(hint) hint.style.display = "inline";
+  }
+  window.addEventListener("beforeunload", saveState);
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "hidden") saveState();
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
