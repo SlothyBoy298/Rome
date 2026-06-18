@@ -318,7 +318,7 @@ function loadPortrait(emp, img, tileEl) {
         index++;
         if (index < extensions.length) {
             // Try the next extension inside the images folder
-            img.src = "images/" + emp.title + extensions[index];
+            img.src = "images/" + emp.title
         } else {
             // All options failed, apply fallback styling
             tileEl.classList.add("noimg");
