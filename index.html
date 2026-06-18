@@ -308,21 +308,26 @@
 
   // Fetch the emperor's headliner portrait from Wikipedia at runtime.
   // If anything fails, fall back to a clean labeled name-card.
-  function loadPortrait(emp, img, tileEl){
-    var url = "images/" + encodeURIComponent(emp.title);
-    fetch(url).then(function(r){
-      if(!r.ok) throw new Error("bad status");
-      return r.json();
-    }).then(function(j){
-      var src = (j.thumbnail && j.thumbnail.source) ||
-                (j.originalimage && j.originalimage.source);
-      if(!src) throw new Error("no image");
-      img.onerror = function(){ tileEl.classList.add("noimg"); };
-      img.src = src;
-    }).catch(function(){
-      tileEl.classList.add("noimg");
-    });
-  }
+function loadPortrait(emp, img, tileEl) {
+    // Array of extensions to try in sequence
+    var extensions = [".jpg", ".jpeg", ".JPG", ".JPEG"];
+    var index = 0;
+
+    // Set up the error handling cycle
+    img.onerror = function() {
+        index++;
+        if (index < extensions.length) {
+            // Try the next extension inside the images folder
+            img.src = "images/" + emp.title + extensions[index];
+        } else {
+            // All options failed, apply fallback styling
+            tileEl.classList.add("noimg");
+        }
+    };
+
+    // Kick off the first attempt pointing to the images folder
+    img.src = "images/" + emp.title + extensions[index];
+}
 
 
   // Restore a board left behind by an accidental close, and keep saving on the way out
